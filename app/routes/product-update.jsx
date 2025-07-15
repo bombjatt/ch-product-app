@@ -3,7 +3,7 @@
 import { json } from "@remix-run/node";
 import { useLoaderData, Form, useActionData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import { fetchNetSuiteCustomers } from "../utils/netsuite.server";
+import { fetchNetSuiteInventoryItemsWithDetails } from "../utils/netsuite.server";
 import { updateShopifyProduct } from "../utils/shopify-utils.server";
 
 // ✅ Loader for GET requests
@@ -63,13 +63,13 @@ export const action = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
 
   // ✅ Fetch customers (or inventory items) from NetSuite
-  const netsuiteData = await fetchNetSuiteCustomers();
+  const netsuiteData = await fetchNetSuiteInventoryItemsWithDetails();
 
   const results = [];
 
   console.log("🔹 Received NetSuite Data:", JSON.stringify(netsuiteData, null, 2));
 
-  const itemsToSync = netsuiteData.slice(0, 2) || [];
+  const itemsToSync = netsuiteData || [];
 
   if (itemsToSync.length === 0) {
     return json({ success: false, message: "NetSuite से कोई डेटा प्राप्त नहीं हुआ।" });

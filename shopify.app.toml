@@ -3,7 +3,7 @@
 client_id = "2d742ace81ae8423a85e994ab0d31e39"
 name = "Ch-product"
 handle = "ch-product"
-application_url = "https://wars-detected-theories-u.trycloudflare.com"
+application_url = "https://executives-synthesis-termination-dad.trycloudflare.com"
 embedded = true
 
 [build]
@@ -26,7 +26,7 @@ api_version = "2025-07"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://wars-detected-theories-u.trycloudflare.com/auth/callback", "https://wars-detected-theories-u.trycloudflare.com/auth/shopify/callback", "https://wars-detected-theories-u.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://executives-synthesis-termination-dad.trycloudflare.com/auth/callback", "https://executives-synthesis-termination-dad.trycloudflare.com/auth/shopify/callback", "https://executives-synthesis-termination-dad.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false

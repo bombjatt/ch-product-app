@@ -21,28 +21,18 @@ function getOAuth() {
   });
 }
 
-export async function fetchNetSuiteCustomers() {
-  const ACCOUNT_ID = process.env.NETSUITE_ACCOUNT_ID; // "4922061_SB1"
-  const REALM = process.env.NETSUITE_REALM; // "4922061_SB1"
-
-  const URL = `https://${ACCOUNT_ID.toLowerCase().replace('_', '-')}.suitetalk.api.netsuite.com/services/rest/record/v1/inventoryItem`;
-
+async function fetchWithOAuth(url, method = 'GET') {
   const oauth = getOAuth();
+  const REALM = process.env.NETSUITE_REALM;
 
-  const request_data = {
-    url: URL,
-    method: 'GET',
-  };
+  const request_data = { url, method };
 
   const token = {
     key: process.env.NETSUITE_TOKEN_ID,
     secret: process.env.NETSUITE_TOKEN_SECRET,
   };
 
-  // Generate standard OAuth header
   const oauthHeader = oauth.toHeader(oauth.authorize(request_data, token));
-
-  // Manually add realm in Authorization header (as Postman did)
   oauthHeader['Authorization'] = `OAuth realm="${REALM}", ${oauthHeader['Authorization'].substring(6)}`;
 
   const headers = {
@@ -50,41 +40,43 @@ export async function fetchNetSuiteCustomers() {
     'Content-Type': 'application/json',
   };
 
-  console.log('🔍 HEADERS:', headers);
+  console.log(`🔹 Fetching: ${url}`);
+
+  const response = await fetch(url, { method, headers });
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error(`❌ Netsuite Error: ${response.status} ${response.statusText}`, data);
+    throw new Error(`❌ Netsuite Error: ${response.status} ${response.statusText}`);
+  }
+
+  return data;
+}
+
+export async function fetchNetSuiteInventoryItemsWithDetails() {
+  const ACCOUNT_ID = process.env.NETSUITE_ACCOUNT_ID;
+  const baseUrl = `https://${ACCOUNT_ID.toLowerCase().replace('_', '-')}.suitetalk.api.netsuite.com/services/rest/record/v1/inventoryItem`;
 
   try {
-    const response = await fetch(URL, {
-      method: 'GET',
-      headers: headers,
-    });
+    // STEP 1: Fetch list of inventory item IDs
+    const listData = await fetchWithOAuth(baseUrl);
+    const items = listData.items?.slice(0, 10) || [];
 
-    const listData = await response.json();
+    const detailedItems = [];
 
-    if (!response.ok) {
-      console.error(`❌ Netsuite Error: ${response.status} ${response.statusText}`);
-      console.error(text);
-      throw new Error(`❌ Netsuite Error: ${response.status} ${response.statusText} - ${text}`);
+    for (const item of items) {
+      const detailUrl = `${baseUrl}/${item.id}`;
+      const detailData = await fetchWithOAuth(detailUrl);
+      detailedItems.push(detailData);
     }
-    const productItems = await listData.items.slice(0, 2)
-    const detailedCustomers = [];
-  for (const item of productItems) {
-    const id = item.id;
-   
-    const detailResponse = await fetch(`${URL}/${id}`, { headers });
 
-    console.log("ID:",id)
-     console.log(`${URL}/${id}`)
-    const detailData = await detailResponse.json();
-    detailedCustomers.push(detailData);
-  }
-    // console.log('✅ Netsuite Response:', text);
-    console.log('✅ Netsuite Response:', detailedCustomers[0]);
-    return detailedCustomers;
+    console.log('✅ Detailed Inventory Items fetched from NetSuite:', JSON.stringify(detailedItems, null, 2));
+    return detailedItems;
   } catch (error) {
     console.error('❌ Netsuite Fetch Error:', error);
     throw error;
   }
 }
 
-// Direct test call
-
+// ✅ Uncomment to test directly
+// fetchNetSuiteInventoryItemsWithDetails().then(console.log).catch(console.error);

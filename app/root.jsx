@@ -5,6 +5,10 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import customStylesHref from "./styles/custom.css";
+export const links = () => [
+  { rel: "stylesheet", href: customStylesHref },
+];
 
 export default function App() {
   return (

@@ -1,11 +1,11 @@
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { fetchNetSuiteCustomers } from "../utils/netsuite.server";
+import { fetchNetSuiteInventoryItemsWithDetails } from "../utils/netsuite.server";
 
 // Loader to fetch customers from NetSuite
 export const loader = async () => {
   try {
-    const customers = await fetchNetSuiteCustomers();
+    const customers = await fetchNetSuiteInventoryItemsWithDetails();
     console.log("✅ Invetory Items fetched:", customers);
 
     return json({ success: true, customers });
@@ -36,28 +36,55 @@ export default function NetsuiteCustomers() {
     );
   }
 
-  return (
-    <div className="p-4">
-      <h1 className="text-xl font-semibold mb-4">NetSuite Inventory Items</h1>
-      <ul className="space-y-2">
-        {customers.map((customer) => (
-          <li
-            key={customer.id}
-            className="border p-3 rounded shadow-sm hover:shadow-md transition"
-          >
-            <div>
-              <strong>ID:</strong> {customer.id}
-            </div>
-            <div>
-              <strong>Company Name:</strong>{" "}
-              {customer.companyName || "N/A"}
-            </div>
-            <div>
-              <strong>Email:</strong> {customer.email || "N/A"}
-            </div>
-          </li>
-        ))}
-      </ul>
+return (
+  <div className="min-h-screen p-6 bg-gray-100">
+    <h1 className="text-2xl font-bold mb-6 text-center">📦 NetSuite Inventory Items</h1>
+
+    {/* Inventory Table */}
+    <div className="overflow-x-auto mb-6">
+      <table className="netsuite-table min-w-full border border-gray-300 bg-white rounded shadow-sm">
+        <thead className="bg-gray-200">
+          <tr>
+            <th className="border border-gray-300 px-4 py-2 text-left">Sr No</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">🆔 ID</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">🆔 SKU/Item Number</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">📦 Name</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">🔖 UPC</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">📝 Website Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((customer, index) => (
+            <tr key={customer.id} className="hover:bg-gray-50">
+              <td className="border border-gray-300 px-4 py-2">{index + 1}</td> {/* Serial Number */}
+              <td className="border border-gray-300 px-4 py-2">{customer.id}</td>
+              <td className="border border-gray-300 px-4 py-2">{customer.externalId}</td>
+              <td className="border border-gray-300 px-4 py-2">{customer.displayName || "N/A"}</td>
+              <td className="border border-gray-300 px-4 py-2">{customer.upcCode || "N/A"}</td>
+              <td className="border border-gray-300 px-4 py-2">
+                {customer.custitem_ch_website_description || "N/A"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  );
+
+    {/* Raw JSON Section */}
+    <div className="bg-white border border-gray-300 rounded shadow-sm p-4 max-w-full overflow-x-auto">
+      <h2 className="text-lg font-semibold mb-2">📄 Raw JSON Data</h2>
+      <pre className="text-xs text-gray-800 whitespace-pre-wrap">
+        {JSON.stringify(customers, null, 2)}
+      </pre>
+    </div>
+  </div>
+);
+
+
+
+
+
+
+
+
 }

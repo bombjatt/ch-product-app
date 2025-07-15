@@ -1,0 +1,16 @@
+.netsuite-table th,
+.netsuite-table td {
+  border: 1px solid #d1d5db; /* Tailwind gray-300 */
+  padding: 0.4rem 1rem;
+  text-align: left;
+}
+.netsuite-table{
+    border-collapse: collapse;
+}
+.netsuite-table th {
+  background-color: #f3f4f6; /* Tailwind gray-100 */
+}
+
+.netsuite-table tr:hover {
+  background-color: #f9fafb; /* Tailwind gray-50 */
+}
